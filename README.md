@@ -13,6 +13,7 @@ Installation
 
 How to Run
 -----------
+1. Copy **\<opencv_installation_dir\>\build\python\2.7\x86\cv2.pyd** to **\<Python27\>\Lib\site-packages\cv2.pyd**
 1. Build Dynamsoft Barcode Reader library for Python. Please refer to https://github.com/Dynamsoft/Dynamsoft-Barcode-Reader/tree/master/samples/Python
 2. Copy **DynamsoftBarcodeReader.pyd** and **DynamsoftBarcodeReaderx64.dll** / **DynamsoftBarcodeReaderx86.dll** to the project folder.
 3. Connect a Webcam to your PC. Make sure you have installed the Webcam driver.
