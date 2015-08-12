@@ -23,4 +23,6 @@ How to Run
 
 Blog
 ----
-Coming soon...
+[Reading Barcode with Webcam in OpenCV and Python][1]
+
+[1]:http://www.codepool.biz/opencv-python-webcam-barcode-reader.html
