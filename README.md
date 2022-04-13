@@ -1,28 +1,33 @@
-# Reading Barcode with Webcam in Python
-The sample demonstrates how to create a simple Webcam Barcode reader in Python.
+# Reading Barcode and QR Code Using Webcam, Python and OpenCV
+The sample demonstrates how to create a simple Webcam Barcode and QR code reader in Python. OpenCV stitcher API is used to stitch multiple barcode and QR code results.
 
-![image](http://www.codepool.biz/wp-content/uploads/2015/08/webcam_barcode_result.png)
+## License Activation
+Get a desktop license key from [here](https://www.dynamsoft.com/customer/license/trialLicense?product=dbr) to activate [Dynamsoft Barcode Reader SDK](https://www.dynamsoft.com/barcode-reader/sdk-desktop-server/):
 
-Installation
--------------
-* Dynamsoft Barcode SDK: http://www.dynamsoft.com/Downloads/Dynamic-Barcode-Reader-Download.aspx
-* Python: https://www.python.org/ftp/python/
-* NumPy: http://sourceforge.net/projects/numpy/files/NumPy/
-* SciPy: http://sourceforge.net/projects/scipy/files/scipy/
-* OpenCV: http://sourceforge.net/projects/opencvlibrary/files/opencv-win/
+```python
+BarcodeReader.init_license("LICENSE-KEY")
+```
 
-How to Run
------------
-1. Copy **\<opencv_installation_dir\>\build\python\2.7\x86\cv2.pyd** to **\<Python27\>\Lib\site-packages\cv2.pyd**
-1. Build Dynamsoft Barcode Reader library for Python. Please refer to https://github.com/Dynamsoft/Dynamsoft-Barcode-Reader/tree/master/samples/Python
-2. Copy **DynamsoftBarcodeReader.pyd** and **DynamsoftBarcodeReaderx64.dll** / **DynamsoftBarcodeReaderx86.dll** to the project folder.
-3. Connect a Webcam to your PC. Make sure you have installed the Webcam driver.
-4. Open **cmd.exe**, locate your project folder and type in ``python webcam_barcode_reader.py``
-5. Press **Enter** to capture a frame and then recognize Barcodes.
-6. Press **ESC** to close the program.
+## Installation
 
-Blog
-----
-[Reading Barcode with Webcam in OpenCV and Python][1]
+```
+pip install opencv-python dbr
+```
 
-[1]:http://www.codepool.biz/opencv-python-webcam-barcode-reader.html
+## Try Example
+
+- scanner.py
+    
+    Use webcam to scan barcode and QR code in real-time.
+
+    ![Python barcode and QR code reader](https://www.dynamsoft.com/codepool/img/2022/04/multiple-barcode-qrcode-scan.png)
+
+- stitcher.py
+    
+    Get camera closer to scan more barcode and QR code precisely and then stitch them together as a panorama image.
+
+    ![Python barcode and QR code reader with panorama stitching](https://www.dynamsoft.com/codepool/img/2022/04/panorama-barcode-qr-code.png)
+
+## Blog
+[Reading Barcode and QR Code Using Webcam, OpenCV and Python](https://www.dynamsoft.com/codepool/opencv-python-webcam-barcode-reader.html)
+
