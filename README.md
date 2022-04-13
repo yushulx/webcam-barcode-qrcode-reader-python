@@ -16,13 +16,13 @@ pip install opencv-python dbr
 
 ## Try Example
 
-- scanner.py
+- [scanner.py](https://github.com/yushulx/webcam-barcode-reader-python/blob/master/scanner.py)
     
     Use webcam to scan barcode and QR code in real-time.
 
     ![Python barcode and QR code reader](https://www.dynamsoft.com/codepool/img/2022/04/multiple-barcode-qrcode-scan.png)
 
-- stitcher.py
+- [stitcher.py](https://github.com/yushulx/webcam-barcode-reader-python/blob/master/stitcher.py)
     
     Get camera closer to scan more barcode and QR code precisely and then stitch them together as a panorama image.
 
