@@ -29,5 +29,5 @@ pip install opencv-python dbr
     ![Python barcode and QR code reader with panorama stitching](https://www.dynamsoft.com/codepool/img/2022/04/panorama-barcode-qr-code.png)
 
 ## Blog
-[Reading Barcode and QR Code Using Webcam, OpenCV and Python](https://www.dynamsoft.com/codepool/opencv-python-webcam-barcode-reader.html)
+[Scanning Barcode and QR Code Using Webcam, OpenCV and Python](https://www.dynamsoft.com/codepool/opencv-python-webcam-barcode-reader.html)
 
