@@ -1,5 +1,7 @@
 import numpy as np
 import cv2 as cv
+from scipy import ndimage
+import math
 
 # https://stackoverflow.com/questions/19068085/shift-image-content-with-opencv
 def shiftX(image, shift):
@@ -38,3 +40,29 @@ def is_moving(current_frame, previous_frame):
         return True
 
     return False
+
+def rotate_image(image, angle, center = None, scale = 1.0):
+    rotated = ndimage.rotate(image, angle)
+    rotated = rotated[0: image.shape[0], 0: image.shape[1]]
+    return rotated
+
+def concat_images(images, axis=1):
+    if axis == 0:
+        return np.concatenate(images, axis=0)
+    elif axis == 1:
+        return np.concatenate(images, axis=1)
+    else:
+        raise ValueError('axis must be 0 or 1')
+
+def rotate_point(point, rotationDiff):
+    x = (point[0] * math.cos(rotationDiff)) - (point[1] * math.sin(rotationDiff))
+    y = (point[0] * math.sin(rotationDiff)) + (point[1] * math.cos(rotationDiff))
+    return (x, y)
+
+def zoom_image(image, zoom_factor):
+    height, width = image.shape[:2]
+    new_height = int(height * zoom_factor)
+    new_width = int(width * zoom_factor)
+    zoomed = cv.resize(image, (new_width, new_height))
+    zoomed = zoomed[0: image.shape[0], 0: image.shape[1]]
+    return zoomed
