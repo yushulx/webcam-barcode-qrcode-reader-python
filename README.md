@@ -28,6 +28,20 @@ pip install opencv-python dbr
 
     ![Python barcode and QR code reader with panorama stitching](https://www.dynamsoft.com/codepool/img/2022/04/panorama-barcode-qr-code.png)
 
+- [barcode_based_panorama.py](https://github.com/yushulx/webcam-barcode-qrcode-reader-python/blob/master/barcode_based_panorama.py)
+    
+    Concatenate images based on barcode and QR code detection results. No image processing algorithm used.
+    
+    ![concatenate barcode and QR code images](./output.png)
+    
+- [barcode_reader.py](https://github.com/yushulx/webcam-barcode-qrcode-reader-python/blob/master/barcode_reader.py)
+    
+    Used to read barcode and QR code from image files.
+    
+    ```bash
+    python barcode_reader.py <image-file>
+    ```
+
 ## Blog
 [Scanning Barcode and QR Code Using Webcam, OpenCV and Python](https://www.dynamsoft.com/codepool/opencv-python-webcam-barcode-reader.html)
 
