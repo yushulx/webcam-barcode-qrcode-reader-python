@@ -65,26 +65,29 @@ class ScanManager:
         try:
             results = self.reader.decode_buffer(frame)
             if results != None:
-                # for result in results:
-                #     points = result.localization_result.localization_points
-                #     cv.line(frame, points[0], points[1], (0,255,0), 2)
-                #     cv.line(frame, points[1], points[2], (0,255,0), 2)
-                #     cv.line(frame, points[2], points[3], (0,255,0), 2)
-                #     cv.line(frame, points[3], points[0], (0,255,0), 2)
-                #     cv.putText(frame, result.barcode_text, points[0], cv.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255))
+                # Draw results on the copy of the frame. Keep original frame clean.
+                frame_cp = frame.copy()
+                for result in results:
+                    points = result.localization_result.localization_points
+                    cv.line(frame_cp, points[0], points[1], (0,255,0), 2)
+                    cv.line(frame_cp, points[1], points[2], (0,255,0), 2)
+                    cv.line(frame_cp, points[2], points[3], (0,255,0), 2)
+                    cv.line(frame_cp, points[3], points[0], (0,255,0), 2)
+                    cv.putText(frame_cp, result.barcode_text, points[0], cv.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255))
 
                 # Save frame and barcode info if panorama is empty
                 if len(self.panorama) == 0:
-                    self.panorama.append((frame, results))
+                    self.panorama.append((frame, results, frame_cp))
                 else:
                     # Compare results. If there is an intersection, transform and stitch. Otherwise, discard.
                     preFrame = self.panorama[0][0]
                     preResults = self.panorama[0][1]
-                    for preResult in preResults:
-                        for result in results:
+                    preFrameCp = self.panorama[0][2]
+
+                    while len(results) > 0:
+                        result = results.pop()
+                        for preResult in preResults:
                             if preResult.barcode_text == result.barcode_text and preResult.barcode_format == result.barcode_format:
-                                print('Current frame:' + result.barcode_text + '!!!!!!!!!!!\n')
-                                # Convert points to contour
                                 prePoints = preResult.localization_result.localization_points
                                 # preContour = np.array([prePoints[0], prePoints[1], prePoints[2], prePoints[3]])
                                 # preArea = cv.minAreaRect(preContour)
@@ -92,58 +95,32 @@ class ScanManager:
                                 # preBounding = cv.boxPoints(preArea)
 
                                 points = result.localization_result.localization_points
-                                # contour = np.array([points[0], points[1], points[2], points[3]])
-                                # area = cv.minAreaRect(contour)
-                                # bounding = cv.boxPoints(area)
-                                # areaSize = area[1][0] * area[1][1]
 
-                                # Zoom image
-                                # ratio = preAreaSize/areaSize
-                                # print("Ratio: " + str(ratio))
-                                # frame = zoom_image(frame, ratio)
-
-                                # Calculate rotation difference
-                                # preRotation = preArea[2]
-                                # rotation = area[2]
-                                # rotationDiff = rotation - preRotation
-
-                                # Calculate shift based on points
-                                # newPoint0 = rotate_point(points[0], rotationDiff)
-                                # xShift = newPoint0[0] - prePoints[0][0]
-                                yShift = points[0][1] - prePoints[0][1]
-                                # newPoint1 = rotate_point(points[1], rotationDiff)
-                                # newPoint2 = rotate_point(points[2], rotationDiff)
-                                # newPoint3 = rotate_point(points[3], rotationDiff)
-
-                                # Rotate and shift
-                                # print('rotation diff: ' + str(rotationDiff))
-                                # frame = rotate_image(frame, rotationDiff)
-                                print('shifting by ' + str(yShift))
-                                # frame = shiftX(frame, int(xShift))
-                                # frame = shiftY(frame, int(yShift))
-
-                                # Crop image based on min area rect
+                                # # Crop image based on min area rect
                                 preFrame = preFrame[0: preFrame.shape[0], 0: max(prePoints[0][0], prePoints[1][0], prePoints[2][0], prePoints[3][0]) + 10]
                                 frame = frame[0: frame.shape[0], max(points[0][0], points[1][0], points[2][0], points[3][0]): frame.shape[1] + 10]
 
-                                # Stitch images
+                                preFrameCp = preFrameCp[0: preFrameCp.shape[0], 0: max(prePoints[0][0], prePoints[1][0], prePoints[2][0], prePoints[3][0]) + 10]
+                                frame_cp = frame_cp[0: frame_cp.shape[0], max(points[0][0], points[1][0], points[2][0], points[3][0]): frame_cp.shape[1] + 10]
+
+                                # # Stitch images
                                 frame = concat_images([preFrame, frame])
+                                frame_cp = concat_images([preFrameCp, frame_cp])
+
+                                # Re-detect barcodes from the new image
                                 results = self.reader.decode_buffer(frame)
-                                if results != None:
-                                    for result in results:
-                                        print(result.barcode_text + '......... saved')
 
-                                    print('\n')
-                                self.panorama = [(frame, results)]
-                                return frame
+                                # Save results
+                                self.panorama = [(frame, results, frame_cp)]
+                                return frame, frame_cp
 
-                return None
+                return self.panorama[0][0], self.panorama[0][2]
                     
         except BarcodeReaderError as e:
             print(e)
-            return None
+            return None, None
 
-        return None
+        return None, None
 
 
     def process_frame(self, frame):
@@ -180,7 +157,9 @@ class ScanManager:
         panoramaTask = deque()
         mode = self.MODE_CAMERA_ONLY
         image = None
+        imageCp = None
         panoramaImage = None
+        panoramaImageCp = None
 
         while True:
             ret, frame = cap.read()
@@ -215,10 +194,11 @@ class ScanManager:
 
             if mode == self.MODE_MANUAL_STITCH or mode == self.MODE_AUTO_STITCH:
                 while len(panoramaTask) > 0 and panoramaTask[0].ready():
-                    image = panoramaTask.popleft().get()
+                    image, imageCp = panoramaTask.popleft().get()
                     if image is not None:
                         panoramaImage = image.copy()
-                        cv.imshow('panorama', panoramaImage)
+                        panoramaImageCp = imageCp.copy()
+                        cv.imshow('panorama', panoramaImageCp)
             
             # Key events
             ch = cv.waitKey(1)
@@ -247,25 +227,25 @@ class ScanManager:
                     panoramaTask.append(task)
             ################################################### Test image operations
             elif ord('x') == ch:
-                if panoramaImage is not None:
-                    panoramaImage = shiftX(panoramaImage, 5)
-                    cv.imshow('panorama', panoramaImage)
+                if panoramaImageCp is not None:
+                    panoramaImageCp = shiftX(panoramaImageCp, 5)
+                    cv.imshow('panorama', panoramaImageCp)
             elif ord('t') == ch:
-                if panoramaImage is not None:
-                    panoramaImage = concat_images([panoramaImage, frame])
-                    cv.imshow('panorama', panoramaImage)
+                if panoramaImageCp is not None:
+                    panoramaImageCp = concat_images([panoramaImageCp, frame])
+                    cv.imshow('panorama', panoramaImageCp)
             elif ord('y') == ch:
-                if panoramaImage is not None:
-                    panoramaImage = shiftY(panoramaImage, 5)
-                    cv.imshow('panorama', panoramaImage)
+                if panoramaImageCp is not None:
+                    panoramaImageCp = shiftY(panoramaImageCp, 5)
+                    cv.imshow('panorama', panoramaImageCp)
             elif ord('z') == ch:
-                if panoramaImage is not None:
-                    panoramaImage = zoom_image(panoramaImage, 2)
-                    cv.imshow('panorama', panoramaImage)
+                if panoramaImageCp is not None:
+                    panoramaImageCp = zoom_image(panoramaImageCp, 2)
+                    cv.imshow('panorama', panoramaImageCp)
             elif ord('r') == ch:
-                if panoramaImage is not None:
-                    panoramaImage = rotate_image(panoramaImage, 1)
-                    cv.imshow('panorama', panoramaImage)
+                if panoramaImageCp is not None:
+                    panoramaImageCp = rotate_image(panoramaImageCp, 1)
+                    cv.imshow('panorama', panoramaImageCp)
             ###################################################
 
             # Quit panorama mode
