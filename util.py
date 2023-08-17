@@ -66,3 +66,34 @@ def zoom_image(image, zoom_factor):
     zoomed = cv.resize(image, (new_width, new_height))
     zoomed = zoomed[0: image.shape[0], 0: image.shape[1]]
     return zoomed
+
+def transform_point(points, matrix):
+    """Transforms the point using the given matrix."""
+    all = []
+    for point in points:
+        x, y = point
+        transformed = np.dot(matrix, [x, y, 1])
+        
+        all.append((int(transformed[0] / transformed[2]), int(transformed[1] / transformed[2])))
+    
+    return all
+
+def perspective_correction(img, pts):
+    # Define the 4 points where the image will be warped to.
+    # For a typical use-case, this would be a rectangle.
+    # We'll use the dimensions of the input image, but you can adjust this
+    # as needed to set the dimensions of the output image.
+    rect = np.array([
+        [0, 0],
+        [img.shape[1] - 1, 0],
+        [img.shape[1] - 1, img.shape[0] - 1],
+        [0, img.shape[0] - 1]
+    ], dtype="float32")
+
+    # Compute the perspective transform matrix
+    matrix = cv.getPerspectiveTransform(pts, rect)
+
+    # Perform the perspective warp
+    warped = cv.warpPerspective(img, matrix, (img.shape[1], img.shape[0]))
+
+    return warped
